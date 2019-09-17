@@ -1,4 +1,5 @@
 import string
+import collections
 
 """ The hex encoded string:
 
@@ -40,49 +41,72 @@ def ascii_freq(a: bytearray) -> float:
         float -- Frequency of valid ascii in a bytearray
     """
     total = len(a)
-    ascii_chars = 0
 
+    ascii_chars = 0
     for i in range(total):
-        if chr(a[i]) in string.ascii_letters + :
+        if chr(a[i]) in string.ascii_letters:
             ascii_chars += 1
     return ascii_chars / total
 
+
 def all_sbxor(a: bytearray) -> list:
     """Find all single byte xor bytearrays given an input
-    
+
     Arguments:
         a {bytearray} -- Input bytearray
-    
-    Returns:
+
+    Returns
         list -- List of all possible values of a ^ k, k is some byte
     """
+    sols = []
+    for i in range(0x100):
+        sols.append(sbxor(a, i))
+    return sols
 
-def solve(a: bytearray) -> bytearray:
+
+def solve(a: bytearray) -> list:
     """Find the plaintext from the single-byte xor cipher.
     This is a very opinionated function, for some cases better to use
-    all_sbxor and parse yourself.
+    all_sbxor and parse
 
     Arguments:
         a {bytearray} -- cipher
 
     Returns:
-        bytearray -- Most likely plaintext
+        list -- Most likely plaintexts
     """
-    potential_solutions = []
-    for i in range(0x100):
-        print(f"{a} ^ {i}")
-        xord = sbxor(a, i)
-        freq = ascii_freq(xord)
-        potential_solutions.append([xord, freq])
+    potential_solutions = all_sbxor(a)
+    print(len(potential_solutions))
 
-    potential_solutions.sort(key=lambda x: x[1])
-    print(potential_solutions[-10:])
+    # Remove unprintable plaintext candidates
+    for s in potential_solutions[:]: # this iterates through a copy of the list
+        for b in s:
+            if chr(b) not in string.printable:
+                potential_solutions.remove(s)
+                break
 
-    return a
+    # Letter % > 80
+    for s in potential_solutions[:]:
+        if ascii_freq(s) < 0.75:
+            potential_solutions.remove(s)
+
+    # ETAOIN SHRDLU
+    for s in potential_solutions[:]:
+        c = collections.Counter(s.decode().lower())
+        fq = c["e"] + c["t"] + c["a"] + c["o"] + c["i"] + c["n"]
+        fq /= len(s)
+        if fq < 0.3:
+            potential_solutions.remove(s)
+
+    print(len(potential_solutions))
+
+    return potential_solutions
 
 if __name__ == "__main__":
     my_bytes = bytearray.fromhex("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
     sol = solve(my_bytes)
 
     print(f"Input ciphertext: {my_bytes}")
-    print(f"Solution: {my_bytes}")
+    print(f"Possible solutions:\n")
+    for b in sol:
+        print(b.decode())
