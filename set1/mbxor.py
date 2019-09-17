@@ -13,13 +13,14 @@ It should come out to:
 a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f
 """
 
+
 def mbxor(msg: bytearray, key: bytearray) -> bytearray:
     """Encrypt a message using the repeating key xor.
-    
+
     Arguments:
         msg {bytearray} -- Message to be encrypted
         key {bytearray} -- Key to be used
-    
+
     Returns:
         bytearray -- Ciphertext of msg ^ key, length of longer msg
     """
