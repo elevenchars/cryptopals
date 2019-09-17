@@ -56,11 +56,11 @@ def all_sbxor(a: bytearray) -> list:
         a {bytearray} -- Input bytearray
 
     Returns
-        list -- List of all possible values of a ^ k, k is some byte
+        list -- List of all possible values of [k, a ^ k], k is some byte
     """
     sols = []
     for i in range(0x100):
-        sols.append(sbxor(a, i))
+        sols.append([i, sbxor(a, i)])
     return sols
 
 
@@ -80,19 +80,19 @@ def solve(a: bytearray) -> list:
 
     # Remove unprintable plaintext candidates
     for s in potential_solutions[:]: # this iterates through a copy of the list
-        for b in s:
+        for b in s[1]:
             if chr(b) not in string.printable:
                 potential_solutions.remove(s)
                 break
 
     # Letter % > 80
     for s in potential_solutions[:]:
-        if ascii_freq(s) < 0.75:
+        if ascii_freq(s[1]) < 0.75:
             potential_solutions.remove(s)
 
     # ETAOIN SHRDLU
     for s in potential_solutions[:]:
-        c = collections.Counter(s.decode().lower())
+        c = collections.Counter(s[1].decode().lower())
         fq = c["e"] + c["t"] + c["a"] + c["o"] + c["i"] + c["n"]
         fq /= len(s)
         if fq < 0.3:
@@ -109,4 +109,5 @@ if __name__ == "__main__":
     print(f"Input ciphertext: {my_bytes}")
     print(f"Possible solutions:")
     for b in sol:
-        print(repr(b.decode()))
+        print(f"Key: {b[0]}")
+        print(f"Plaintext: {repr(b[1])}")
