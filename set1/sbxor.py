@@ -76,7 +76,7 @@ def solve(a: bytearray) -> list:
         list -- Most likely plaintexts
     """
     potential_solutions = all_sbxor(a)
-    print(len(potential_solutions))
+    # print(len(potential_solutions))
 
     # Remove unprintable plaintext candidates
     for s in potential_solutions[:]: # this iterates through a copy of the list
@@ -98,7 +98,7 @@ def solve(a: bytearray) -> list:
         if fq < 0.3:
             potential_solutions.remove(s)
 
-    print(len(potential_solutions))
+    # print(len(potential_solutions))
 
     return potential_solutions
 
@@ -107,6 +107,6 @@ if __name__ == "__main__":
     sol = solve(my_bytes)
 
     print(f"Input ciphertext: {my_bytes}")
-    print(f"Possible solutions:\n")
+    print(f"Possible solutions:")
     for b in sol:
-        print(b.decode())
+        print(repr(b.decode()))
